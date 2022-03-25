@@ -1,5 +1,5 @@
 build:
-	docker build -t jefedavis/resume-pdf-converter:latest .
+	docker build -t ${IMG} .
 
 push:
-	docker push jefedavis/resume-pdf-converter:latest
+	docker push ${IMG}

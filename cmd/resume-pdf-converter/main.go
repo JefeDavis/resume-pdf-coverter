@@ -15,7 +15,7 @@ func main() {
 	app := fiber.New()
 
 	app.Get("/convert", func(c *fiber.Ctx) error {
-		q := c.Query("url", "http://resume-svc:8080")
+		q := c.Query("url", os.Getenv("TARGET_URL"))
 		file, err := ioutil.TempFile("", "resume-*.pdf")
 		if err != nil {
 			return err
