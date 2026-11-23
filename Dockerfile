@@ -1,15 +1,24 @@
-FROM golang:latest as builder
+FROM cgr.dev/chainguard/go:latest AS builder
 
-WORKDIR /app 
+WORKDIR /app
 
 COPY . .
 
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" ./cmd/resume-pdf-converter
 
-FROM browserless/chrome:1-chrome-stable
+FROM cgr.dev/chainguard/wolfi-base:latest
 
 WORKDIR /app
 
+# Install Chromium from the Wolfi package repo. Lands at /usr/bin/chromium,
+# which is on PATH so chromedp can discover it directly.
+RUN apk add --no-cache chromium
+
 COPY --from=builder /app/resume-pdf-converter /usr/bin/
+
+ENV CHROME_PATH=/usr/bin/chromium
+
+# Run as a non-root user; Chrome runs with --no-sandbox so no SYS_ADMIN needed.
+USER 65532
 
 ENTRYPOINT ["resume-pdf-converter"]
