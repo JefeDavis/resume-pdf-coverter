@@ -1,10 +1,15 @@
-FROM cgr.dev/chainguard/go:latest AS builder
+# Build on the native build platform and cross-compile to the target arch so
+# multi-arch builds don't pay for emulating the Go toolchain.
+FROM --platform=$BUILDPLATFORM cgr.dev/chainguard/go:latest AS builder
+
+ARG TARGETOS
+ARG TARGETARCH
 
 WORKDIR /app
 
 COPY . .
 
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" ./cmd/resume-pdf-converter
+RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -ldflags="-w -s" ./cmd/resume-pdf-converter
 
 FROM cgr.dev/chainguard/wolfi-base:latest
 
